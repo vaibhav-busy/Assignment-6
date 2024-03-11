@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
+	"regexp"
 
 	// "internal/abi"
 	"io"
@@ -22,6 +22,12 @@ type ApiResponse struct {
 	Total      int    `json:"total"`
 	TotalPages int    `json:"total_pages"`
 	Data       []City `json:"data"`
+}
+
+func extractNumber(s string) string {
+	re := regexp.MustCompile(`\d+`)
+	num := re.FindString(s)
+	return num
 }
 
 func search(url, name string) ([]City, error) {
@@ -75,17 +81,17 @@ func main() {
 	}
 
 	// fmt.Println(result)
-	println("Name\t\t", "temp\t\t", "Wind\t", "Humidity")
+	// println("Name\t\t", "temp\t", "Wind\t", "Humidity" )
+	fmt.Printf("%-15s%-7s%-7s%-7s\n", "Name", "Temp", "Wind", "Humidity")
 	for _, val := range result {
 		// fmt.Println(val)
-		fmt.Print(val.Name, "\t", val.Weather, "\t")
 
-		for _, status := range val.Status {
-			spaceIndex := strings.Index(status, " ")
-			resultString := status[spaceIndex+1:]
-			fmt.Print(resultString, "\t")
-		}
-		fmt.Println("")
+		weather := extractNumber(val.Weather)
+		wind := extractNumber(val.Status[0])
+		humidity := extractNumber(val.Status[1])
+
+		fmt.Printf("%-15s%-7s%-7s%-7s\n", val.Name, weather, wind, humidity)
+
 	}
 
 }
